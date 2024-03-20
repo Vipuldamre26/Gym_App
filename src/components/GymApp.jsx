@@ -11,17 +11,20 @@ import { useRef } from 'react';
 const GymApp = () => {
 
     const [ data, setData ] = useState();
+    const [ bodyPart, setBodyPart ] = useState('back');
+    const [ number, setNumber ] = useState(6);
+
     const ref = useRef('');
     console.log('====================================');
-    console.log(ref.current);
+    console.log(ref.current.value);
     console.log('====================================');
     let arr = [img1, img2, img3, img4, img5];
 
+    let bodyPartList = ['back', 'cardio', 'chest', 'lower arms', 'lower legs', 'neck', 'shoulders', 'upper arms', 'upper legs', 'waist'];
 
 
 
-
-    const url = 'https://exercisedb.p.rapidapi.com/exercises/bodyPart/back?limit=5';
+    const url = `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}?limit=${number}`;
     const options = {
         method: 'GET',
         headers: {
@@ -31,16 +34,22 @@ const GymApp = () => {
     };
 
 
+    // ******************************************************
+
+
     const fetchData = async () => {
         try {
             const response = await fetch(url, options);
             const result = await response.json();
-            // console.log(result);
+            console.log(result);
             setData(result);
         } catch (error) {
             console.error(error);
         }
     }
+
+
+    // ******************************************************
 
 
     
@@ -50,7 +59,52 @@ const GymApp = () => {
 
     }, [])
 
-    console.log(data);
+    // console.log(data);
+
+
+    // ***************************************************
+
+    const getInputText = (e) => {
+        
+        let searchInput = e.target.value;
+        if(searchInput === ''){
+            setBodyPart('back');
+            setNumber(6);
+        }
+        else{
+            setBodyPart(searchInput);
+        }
+    }
+
+
+    // ******************************************************
+
+
+    const searchBodyPart = () => {
+
+        if(bodyPartList.includes(bodyPart)){
+            fetchData();
+        }
+        else{
+            alert('Please enter valid bodypart');
+        }
+    }
+
+
+    // ******************************************************
+
+
+    const searchMore = () => {
+
+        if(ref.current.value === '' || !bodyPartList.includes(bodyPart.toLowerCase())){
+            alert('Please enter body part first in the search bar');
+        }
+        else{
+            setNumber(prev => prev + 6);
+            fetchData();
+        }
+    }
+
 
 
 
@@ -68,7 +122,16 @@ const GymApp = () => {
                     })
                 }
             </div>
-            <input ref={ref} type='text'></input>
+
+            <div className='input'>
+                <input 
+                    placeholder='search exercise' 
+                    ref={ref} 
+                    type='text'
+                    onChange={(e) => getInputText(e)}
+                ></input>
+                <button onClick={searchBodyPart}>Search</button>
+            </div>
             <div className='container'>
 
                 {
@@ -80,6 +143,10 @@ const GymApp = () => {
                         )
                     })
                 }
+            </div>
+
+            <div className='btn'>
+                <button onClick={searchMore}>Show More</button>
             </div>
         </div>
     )
